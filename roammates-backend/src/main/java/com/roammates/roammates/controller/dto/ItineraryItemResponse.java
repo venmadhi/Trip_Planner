@@ -19,5 +19,6 @@ public class ItineraryItemResponse {
     private LocalDateTime endTime;
     private String location;
     private Double cost;
+    private String category;
     private Long tripId;
 }

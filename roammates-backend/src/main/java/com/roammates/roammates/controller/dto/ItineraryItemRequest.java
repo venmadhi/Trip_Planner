@@ -18,4 +18,5 @@ public class ItineraryItemRequest {
     private LocalDateTime endTime;
     private String location;
     private Double cost;
+    private String category;
 }

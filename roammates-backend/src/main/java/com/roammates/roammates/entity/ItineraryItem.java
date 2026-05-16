@@ -37,4 +37,6 @@ public class ItineraryItem {
     private String location;
 
     private Double cost;
+
+    private String category;
 }

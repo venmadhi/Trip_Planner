@@ -38,6 +38,7 @@ public class ItineraryService {
                 .endTime(request.getEndTime())
                 .location(request.getLocation())
                 .cost(request.getCost())
+                .category(request.getCategory())
                 .build();
 
         ItineraryItem savedItem = itineraryItemRepository.save(item);
@@ -58,6 +59,7 @@ public class ItineraryService {
         item.setEndTime(request.getEndTime());
         item.setLocation(request.getLocation());
         item.setCost(request.getCost());
+        item.setCategory(request.getCategory());
 
         ItineraryItem updatedItem = itineraryItemRepository.save(item);
         return mapToResponse(updatedItem);
@@ -83,6 +85,7 @@ public class ItineraryService {
                 .endTime(item.getEndTime())
                 .location(item.getLocation())
                 .cost(item.getCost())
+                .category(item.getCategory())
                 .tripId(item.getTrip().getId())
                 .build();
     }

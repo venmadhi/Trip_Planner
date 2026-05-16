@@ -1,7 +1,7 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
 
 @custom-variant dark (&:is(.dark *));
 
@@ -136,14 +136,14 @@
 :root {
   /* Roammates Design Prompt Variables */
   --primary: #6C63FF;
-  --primary-dark: #4B44CC;
+  --primary-dark: #5A52D5;
   --primary-light: #EEF0FF;
   
   --accent: #FF6B6B;
   --accent-green: #2ECC71;
   --accent-yellow: #F7C948;
   
-  --bg: #F8F9FF;
+  --bg: #F4F6FF;
   --card-bg: #FFFFFF;
   --border-color: #E8E8F0;
   
@@ -166,7 +166,7 @@
   --border: var(--border-color);
   --input: var(--border-color);
   --ring: var(--primary);
-  --radius: 12px;
+  --radius: 16px; /* Updated to 16px as requested */
 }
 
 .dark {
@@ -205,22 +205,57 @@
 
 @layer utilities {
   .roam-card {
-    @apply bg-white rounded-[12px] shadow-[0_2px_12px_rgba(0,0,0,0.06)] border border-[#E8E8F0] p-6 hover:shadow-md transition-shadow duration-300;
+    @apply bg-white rounded-[16px] shadow-[0_4px_14px_rgba(108,99,255,0.08)] border border-[#E8E8F0] p-6 transition-all duration-300;
+  }
+  
+  .roam-card:hover {
+    @apply -translate-y-[3px] shadow-[0_8px_24px_rgba(108,99,255,0.15)];
   }
   
   .roam-btn-primary {
-    @apply bg-[#6C63FF] text-white px-6 py-2.5 rounded-[8px] font-semibold hover:bg-[#4B44CC] transition-colors;
+    @apply bg-[#6C63FF] text-white px-6 py-2.5 rounded-[10px] font-semibold transition-all duration-200;
+  }
+  
+  .roam-btn-primary:hover {
+    @apply bg-[#5A52D5] -translate-y-[1px] shadow-md;
   }
 
   .roam-badge {
-    @apply bg-[#EEF0FF] text-[#6C63FF] text-xs font-medium px-3 py-1 rounded-full;
+    @apply bg-[#EEF0FF] text-[#6C63FF] text-xs font-medium px-3 py-1 rounded-[999px];
   }
 
   .roam-input {
-    @apply w-full border border-[#E8E8F0] rounded-[8px] px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#6C63FF];
+    @apply w-full border border-[#E8E8F0] rounded-[10px] px-4 py-2.5 text-sm transition-all duration-200 focus:outline-none focus:border-[#6C63FF] focus:ring-4 focus:ring-[#6C63FF]/20;
   }
   
   .text-gradient {
     @apply bg-clip-text text-transparent bg-gradient-to-r from-[#6C63FF] to-[#A78BFA];
+  }
+
+  /* Custom Animations */
+  @keyframes gradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  
+  .animate-gradient {
+    background-size: 200% 200%;
+    animation: gradient 8s ease infinite;
+  }
+
+  @keyframes float {
+    0% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-20px) rotate(5deg); }
+    100% { transform: translateY(0px) rotate(0deg); }
+  }
+
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+  
+  .animate-float-delayed {
+    animation: float 6s ease-in-out infinite;
+    animation-delay: 3s;
   }
 }
