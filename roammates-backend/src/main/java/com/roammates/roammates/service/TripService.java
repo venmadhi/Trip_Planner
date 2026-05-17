@@ -2,6 +2,7 @@ package com.roammates.roammates.service;
 
 import com.roammates.roammates.controller.dto.CreateTripRequest;
 import com.roammates.roammates.controller.dto.TripDto;
+import com.roammates.roammates.controller.dto.TripMemberDto;
 import com.roammates.roammates.entity.Trip;
 import com.roammates.roammates.entity.TripMember;
 import com.roammates.roammates.entity.TripRole;
@@ -30,13 +31,18 @@ public class TripService {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
+        String bannerUrl = request.getBannerImage();
+        if (bannerUrl == null || bannerUrl.trim().isEmpty()) {
+            bannerUrl = "https://picsum.photos/seed/" + request.getDestination().trim().replaceAll("\\s+", "") + "/1200/400";
+        }
+
         Trip trip = Trip.builder()
                 .title(request.getTitle())
                 .destination(request.getDestination())
                 .startDate(request.getStartDate())
                 .endDate(request.getEndDate())
                 .description(request.getDescription())
-                .bannerImage(request.getBannerImage())
+                .bannerImage(bannerUrl)
                 .status(TripStatus.PLANNING)
                 .inviteCode(UUID.randomUUID().toString().substring(0, 8).toUpperCase())
                 .build();
@@ -99,6 +105,14 @@ public class TripService {
                 .bannerImage(trip.getBannerImage())
                 .inviteCode(trip.getInviteCode())
                 .status(trip.getStatus().name())
+                .members(trip.getMembers() != null ? trip.getMembers().stream().map(m -> 
+                    TripMemberDto.builder()
+                        .id(m.getUser().getId())
+                        .fullName(m.getUser().getFullName())
+                        .email(m.getUser().getEmail())
+                        .role(m.getRole().name())
+                        .build()
+                ).collect(Collectors.toList()) : null)
                 .build();
     }
 }

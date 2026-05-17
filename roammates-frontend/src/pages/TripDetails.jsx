@@ -6,6 +6,10 @@ import WeatherWidget from '@/components/trip/WeatherWidget'
 import CurrencyConverterWidget from '@/components/trip/CurrencyConverterWidget'
 import MapWidget from '@/components/trip/MapWidget'
 import ExpenseTracker from '@/components/trip/ExpenseTracker'
+import ChecklistTab from '@/components/trip/ChecklistTab'
+import TasksTab from '@/components/trip/TasksTab'
+import PollsTab from '@/components/trip/PollsTab'
+import PinboardTab from '@/components/trip/PinboardTab'
 import api from '@/lib/axios'
 import { useAuthStore } from '@/store/authStore'
 
@@ -70,8 +74,12 @@ export default function TripDetails() {
         {/* Dark gradient overlay on bottom half: transparent to rgba(0,0,0,0.7) */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
         
-        {/* Top Right: Invite Button */}
-        <div className="absolute top-6 right-6 z-20">
+        {/* Top Right: Invite Button & Code */}
+        <div className="absolute top-6 right-6 z-20 flex items-center gap-3">
+          <div className="bg-white/20 backdrop-blur-md px-4 py-2 rounded-full border border-white/40 shadow-sm flex items-center gap-2">
+            <span className="text-white/80 text-xs font-bold uppercase tracking-wider">Code:</span>
+            <span className="text-white font-[800] tracking-widest">{trip.inviteCode}</span>
+          </div>
           <button 
             onClick={handleInvite}
             className="bg-white text-[#6C63FF] hover:bg-[#6C63FF] hover:text-white font-bold rounded-[999px] px-5 py-2 text-sm shadow-lg transition-all duration-300"
@@ -93,13 +101,20 @@ export default function TripDetails() {
             
             {/* Overlapping Avatar Group on Banner */}
             <div className="flex -space-x-3 mr-12">
-               <div className="relative group">
-                 <img 
-                   src={`https://ui-avatars.com/api/?name=${user?.fullName || 'User'}&background=EEF0FF&color=6C63FF&bold=true`} 
-                   alt="member" 
-                   className="w-10 h-10 rounded-full border-[2px] border-white shadow-sm" 
-                 />
-               </div>
+               {trip.members?.slice(0, 3).map((member, idx) => (
+                 <div key={idx} className="relative group">
+                   <img 
+                     src={`https://ui-avatars.com/api/?name=${member.fullName}&background=EEF0FF&color=6C63FF&bold=true`} 
+                     alt="member" 
+                     className="w-10 h-10 rounded-full border-[2px] border-white shadow-sm" 
+                   />
+                 </div>
+               ))}
+               {trip.members?.length > 3 && (
+                 <div className="w-10 h-10 rounded-full border-[2px] border-white shadow-sm bg-white/20 backdrop-blur-sm flex items-center justify-center text-xs font-bold text-white">
+                   +{trip.members.length - 3}
+                 </div>
+               )}
             </div>
           </div>
         </div>
@@ -132,13 +147,10 @@ export default function TripDetails() {
           <div className="w-full lg:w-[65%] animate-in fade-in duration-500" key={activeTab}>
             {activeTab === 'Itinerary' && <ItineraryPlanner tripId={tripId} />}
             {activeTab === 'Expenses' && <ExpenseTracker tripId={tripId} />}
-            {activeTab !== 'Itinerary' && activeTab !== 'Expenses' && (
-              <div className="roam-card h-[400px] flex flex-col items-center justify-center text-center">
-                <span className="text-6xl mb-4 opacity-50">{TAB_ICONS[activeTab]}</span>
-                <h3 className="text-xl font-bold text-[var(--text-primary)] mb-2">{activeTab}</h3>
-                <p className="text-[var(--text-secondary)]">This feature is coming soon!</p>
-              </div>
-            )}
+            {activeTab === 'Checklist' && <ChecklistTab tripId={tripId} />}
+            {activeTab === 'Tasks' && <TasksTab tripId={tripId} />}
+            {activeTab === 'Polls' && <PollsTab tripId={tripId} />}
+            {activeTab === 'Pinboard' && <PinboardTab tripId={tripId} />}
           </div>
           
           {/* RIGHT SIDEBAR (35%) */}
@@ -148,23 +160,25 @@ export default function TripDetails() {
             <div className="roam-card">
               <h3 className="text-lg font-[800] text-[var(--text-primary)] mb-5 flex items-center justify-between">
                 Members
-                <span className="text-xs font-bold text-white bg-[#6C63FF] w-6 h-6 rounded-full flex items-center justify-center">1</span>
+                <span className="text-xs font-bold text-white bg-[#6C63FF] w-6 h-6 rounded-full flex items-center justify-center">{trip.members?.length || 0}</span>
               </h3>
               <div className="flex flex-wrap gap-3">
-                 <div className="group relative">
-                   <div className="relative">
-                     <img 
-                       src={`https://ui-avatars.com/api/?name=${user?.fullName || 'User'}&background=EEF0FF&color=6C63FF&bold=true`} 
-                       alt={user?.fullName || 'User'} 
-                       className="w-12 h-12 rounded-full border-2 border-[#6C63FF]/30 shadow-sm transition-transform group-hover:-translate-y-1" 
-                     />
-                     <div className="absolute -top-1 -right-1 text-xs drop-shadow-md">👑</div>
+                 {trip.members?.map((member, idx) => (
+                   <div key={idx} className="group relative">
+                     <div className="relative">
+                       <img 
+                         src={`https://ui-avatars.com/api/?name=${member.fullName}&background=EEF0FF&color=6C63FF&bold=true`} 
+                         alt={member.fullName} 
+                         className="w-12 h-12 rounded-full border-2 border-[#6C63FF]/30 shadow-sm transition-transform group-hover:-translate-y-1" 
+                       />
+                       {member.role === 'ADMIN' && <div className="absolute -top-1 -right-1 text-xs drop-shadow-md">👑</div>}
+                     </div>
+                     {/* Tooltip */}
+                     <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-800 text-white text-xs font-bold py-1 px-2 rounded whitespace-nowrap z-50 pointer-events-none">
+                       {member.fullName} {member.role === 'ADMIN' && '(Admin)'}
+                     </div>
                    </div>
-                   {/* Tooltip */}
-                   <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-800 text-white text-xs font-bold py-1 px-2 rounded whitespace-nowrap z-50 pointer-events-none">
-                     {user?.fullName || 'User'} (Admin)
-                   </div>
-                 </div>
+                 ))}
               </div>
             </div>
             

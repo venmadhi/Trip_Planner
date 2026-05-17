@@ -5,6 +5,7 @@ import Register from '@/pages/Register'
 import Dashboard from '@/pages/Dashboard'
 import TripDetails from '@/pages/TripDetails'
 import JoinTrip from '@/pages/JoinTrip'
+import Profile from '@/pages/Profile'
 import { Button } from "@/components/ui/button"
 
 function PrivateRoute({ children }) {
@@ -76,6 +77,14 @@ function App() {
         element={
           <PrivateRoute>
             <JoinTrip />
+          </PrivateRoute>
+        } 
+      />
+      <Route 
+        path="/profile" 
+        element={
+          <PrivateRoute>
+            <Profile />
           </PrivateRoute>
         } 
       />

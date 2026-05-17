@@ -6,21 +6,15 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class TripDto {
+public class TaskItemDto {
     private Long id;
     private String title;
-    private String destination;
-    private LocalDate startDate;
-    private LocalDate endDate;
-    private String description;
-    private String bannerImage;
-    private String inviteCode;
+    private String assignee; // Full name of the assignee
+    private LocalDate deadline;
     private String status;
-    private List<TripMemberDto> members;
 }

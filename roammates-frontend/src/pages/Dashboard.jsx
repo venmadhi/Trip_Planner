@@ -7,6 +7,9 @@ import api from '@/lib/axios'
 export default function Dashboard() {
   const [trips, setTrips] = useState([])
   const [loading, setLoading] = useState(true)
+  const [isJoining, setIsJoining] = useState(false)
+  const [joinCode, setJoinCode] = useState('')
+  const [joinError, setJoinError] = useState('')
   const user = useAuthStore((state) => state.user)
   const logout = useAuthStore((state) => state.logout)
   const navigate = useNavigate()
@@ -24,6 +27,18 @@ export default function Dashboard() {
     }
     fetchTrips()
   }, [])
+
+  const handleJoinTrip = async (e) => {
+    e.preventDefault()
+    setJoinError('')
+    if (!joinCode.trim()) return
+    try {
+      const response = await api.post(`/trips/join/${joinCode.trim()}`)
+      navigate(`/trips/${response.data.id}`)
+    } catch (err) {
+      setJoinError(err.response?.data?.message || 'Invalid code or already joined.')
+    }
+  }
 
   const handleLogout = () => {
     logout()
@@ -44,12 +59,12 @@ export default function Dashboard() {
           <span className="font-[800] text-xl text-[#6C63FF] tracking-tight">Roammates</span>
         </div>
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
+          <Link to="/profile" className="flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer">
             <div className="w-8 h-8 rounded-full bg-gradient-to-r from-[#6C63FF] to-[#A78BFA] text-white flex items-center justify-center font-bold text-sm shadow-sm">
               {user?.fullName?.charAt(0) || 'U'}
             </div>
             <span className="font-semibold text-sm hidden md:block">{user?.fullName}</span>
-          </div>
+          </Link>
           <button onClick={handleLogout} className="text-sm font-semibold text-[#FF6B6B] hover:text-[#E05252] transition-colors">
             Logout
           </button>
@@ -72,9 +87,14 @@ export default function Dashboard() {
         {/* Section Title */}
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-[var(--text-primary)]">Your Trips</h2>
-          <Button className="roam-btn-primary shadow-sm flex items-center gap-2">
-            <span className="text-lg leading-none">+</span> Create New Trip
-          </Button>
+          <div className="flex gap-3">
+            <Button onClick={() => setIsJoining(true)} className="bg-white text-[#6C63FF] border-2 border-[#6C63FF] hover:bg-[#6C63FF] hover:text-white font-bold rounded-[10px] shadow-sm transition-all duration-300">
+              Join Trip
+            </Button>
+            <Button className="roam-btn-primary shadow-sm flex items-center gap-2">
+              <span className="text-lg leading-none">+</span> Create New Trip
+            </Button>
+          </div>
         </div>
 
         {/* Trip Cards Grid */}
@@ -120,7 +140,7 @@ export default function Dashboard() {
                     </div>
                     <div className="flex items-center gap-2 text-sm font-medium text-[var(--text-secondary)]">
                       <span>👥</span>
-                      <span>3 Members</span>
+                      <span>{trip.members?.length || 1} Member{trip.members?.length !== 1 ? 's' : ''}</span>
                     </div>
                   </div>
 
@@ -135,6 +155,37 @@ export default function Dashboard() {
           </div>
         )}
       </div>
+
+      {/* JOIN TRIP MODAL */}
+      {isJoining && (
+        <div className="fixed inset-0 bg-[#1A1A2E]/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in">
+          <div className="bg-white rounded-[24px] w-full max-w-sm p-8 shadow-2xl animate-in zoom-in-95">
+            <h3 className="text-2xl font-[800] text-[var(--text-primary)] mb-2">Join a Trip</h3>
+            <p className="text-sm font-medium text-[var(--text-secondary)] mb-6">Enter the 8-character invite code from your friend.</p>
+            
+            <form onSubmit={handleJoinTrip} className="space-y-4">
+              <div>
+                <input 
+                  required 
+                  className="roam-input text-center font-bold tracking-widest uppercase text-xl" 
+                  value={joinCode} 
+                  onChange={e => setJoinCode(e.target.value.toUpperCase())} 
+                  placeholder="XXXXXXXX" 
+                  maxLength={8}
+                />
+              </div>
+              
+              {joinError && <p className="text-sm text-[#FF6B6B] font-bold text-center">{joinError}</p>}
+              
+              <div className="flex justify-between gap-3 pt-4 border-t border-[#E8E8F0] mt-6">
+                <button type="button" onClick={() => setIsJoining(false)} className="w-1/2 py-2.5 rounded-[10px] font-bold text-[var(--text-secondary)] hover:bg-[#F4F6FF] transition-colors border-2 border-transparent hover:border-[#E8E8F0]">Cancel</button>
+                <button type="submit" className="roam-btn-primary w-1/2">Join</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
     </div>
   )
 }
